@@ -29,6 +29,7 @@ import {
 import {Box, Fab, Slider, Typography, Tooltip, IconButton, useTheme} from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { Tooltip as LeafletTooltip } from 'react-leaflet';
+import L from 'leaflet';
 import {SatelliteAlt} from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
