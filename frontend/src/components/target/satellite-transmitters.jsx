@@ -61,9 +61,22 @@ const TargetSatelliteTransmittersIsland = () => {
         return `Δ ${sign}${(driftHz / 1e3).toFixed(1)} kHz`;
     };
 
-    const formatViolationText = () => t('satellite_transmitters.messages.frequency_violation')
-        .replace(/^[\s\u26A0\uFE0F!]+/u, '')
-        .trim();
+    const formatViolationText = () => {
+        let text = t('satellite_transmitters.messages.frequency_violation').trim();
+
+        while (text.length > 0) {
+            const firstCodePoint = text.codePointAt(0);
+
+            if (firstCodePoint === 0x26A0 || firstCodePoint === 0xFE0F || firstCodePoint === 0x21) {
+                text = text.slice(firstCodePoint > 0xFFFF ? 2 : 1).trim();
+                continue;
+            }
+
+            break;
+        }
+
+        return text;
+    };
 
     const BandBadge = ({ band }) => {
         return (
