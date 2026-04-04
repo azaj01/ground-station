@@ -18,7 +18,6 @@
  */
 
 
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './i18n/config.js'
 import {createBrowserRouter, RouterProvider} from "react-router";
@@ -160,15 +159,13 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById('root')).render(
-    <StrictMode>
-        <ReduxProvider store={store}>
-            <PersistGate loading={null} persistor={persistor}>
-                <SocketProvider>
-                    <WakeLockProvider>
-                        <RouterProvider router={router} />
-                    </WakeLockProvider>
-                </SocketProvider>
-            </PersistGate>
-        </ReduxProvider>
-    </StrictMode>
+    <ReduxProvider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+            <SocketProvider>
+                <WakeLockProvider>
+                    <RouterProvider router={router} />
+                </WakeLockProvider>
+            </SocketProvider>
+        </PersistGate>
+    </ReduxProvider>
 );
