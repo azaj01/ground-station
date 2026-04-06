@@ -60,7 +60,6 @@ const SynchronizeTLEsCard = function () {
             background: `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.background.paper} 100%)`,
             borderRadius: 1,
             border: `1px solid ${theme.palette.divider}`,
-            boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
             overflow: 'hidden',
         })}>
             <Box sx={(theme) => ({
