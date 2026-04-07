@@ -19,12 +19,11 @@
 
 
 import React, {useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {Box, IconButton, useTheme} from "@mui/material";
 import FrequencyScale from "./frequency-scale.jsx";
 import BookmarkCanvas from "./bookmarks-overlay.jsx";
 import {
-    setBookMarks,
     setWaterFallScaleX,
     setWaterFallPositionX
 } from "./waterfall-slice.jsx";
@@ -65,23 +64,26 @@ const WaterfallAndBandscope = forwardRef(function WaterfallAndBandscope({
     // Activate doppler neighbor calculation hook
     useDopplerNeighbors();
     const {
-        waterFallVisualWidth,
         waterFallCanvasWidth,
         waterFallCanvasHeight,
         bandScopeHeight,
-        bandscopeTopPadding = 0,
+        bandscopeTopPadding,
         waterFallScaleX,
         waterFallPositionX,
-        frequencyScaleHeight,
-        autoDBRange,
-        bookmarks,
         isRecording,
         isStreaming,
         selectedSDRId,
-    } = useSelector((state) => state.waterfall);
-
-    // Add state for bookmarks
-    const [visualContainerWidth, setVisualContainerWidth] = useState(waterFallCanvasWidth);
+    } = useSelector((state) => ({
+        waterFallCanvasWidth: state.waterfall.waterFallCanvasWidth,
+        waterFallCanvasHeight: state.waterfall.waterFallCanvasHeight,
+        bandScopeHeight: state.waterfall.bandScopeHeight,
+        bandscopeTopPadding: state.waterfall.bandscopeTopPadding ?? 0,
+        waterFallScaleX: state.waterfall.waterFallScaleX,
+        waterFallPositionX: state.waterfall.waterFallPositionX,
+        isRecording: state.waterfall.isRecording,
+        isStreaming: state.waterfall.isStreaming,
+        selectedSDRId: state.waterfall.selectedSDRId,
+    }), shallowEqual);
 
     // Track playback countdown for display
     const [playbackCountdown, setPlaybackCountdown] = useState(0);
@@ -150,28 +152,6 @@ const WaterfallAndBandscope = forwardRef(function WaterfallAndBandscope({
         // Apply transform (this now also updates React state)
         applyTransform();
     }, []);
-
-    // Function to add a bookmark at a specific frequency
-    const addBookmark = useCallback((frequency, label, color = '#ffff00') => {
-        const newBookmark = {
-            id: Date.now().toString(),
-            frequency,
-            label: label || `${(frequency / 1e6).toFixed(3)} MHz`,
-            color
-        };
-
-        dispatch(setBookMarks([...bookmarks, newBookmark]));
-
-    }, []);
-
-    // Add a bookmark at the center frequency
-    const addCenterFrequencyBookmark = useCallback(() => {
-        addBookmark(
-            centerFrequency,
-            `Center ${(centerFrequency / 1e6).toFixed(3)} MHz`,
-            '#00ffff'
-        );
-    }, [addBookmark, centerFrequency]);
 
     // Handle clicks on bookmarks
     const handleBookmarkClick = useCallback((bookmark) => {
@@ -584,7 +564,7 @@ const WaterfallAndBandscope = forwardRef(function WaterfallAndBandscope({
                     <BookmarkCanvas
                         centerFrequency={centerFrequency}
                         sampleRate={sampleRate}
-                        containerWidth={visualContainerWidth}
+                        containerWidth={waterFallCanvasWidth}
                         height={bandScopeHeight + bandscopeTopPadding}
                         topPadding={bandscopeTopPadding}
                         onBookmarkClick={handleBookmarkClick}
@@ -593,7 +573,7 @@ const WaterfallAndBandscope = forwardRef(function WaterfallAndBandscope({
                     <FrequencyBandOverlay
                         centerFrequency={centerFrequency}
                         sampleRate={sampleRate}
-                        containerWidth={visualContainerWidth}
+                        containerWidth={waterFallCanvasWidth}
                         height={bandScopeHeight + bandscopeTopPadding}
                         topPadding={bandscopeTopPadding}
                         bands={frequencyBands}
@@ -615,7 +595,7 @@ const WaterfallAndBandscope = forwardRef(function WaterfallAndBandscope({
 
                 <FrequencyScale
                     centerFrequency={centerFrequency}
-                    containerWidth={visualContainerWidth}
+                    containerWidth={waterFallCanvasWidth}
                     sampleRate={sampleRate}
                 />
 

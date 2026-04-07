@@ -26,7 +26,7 @@ import {
 } from '../common/custom-icons.jsx';
 import SatelliteAltIcon from '@mui/icons-material/SatelliteAlt';
 import { useTranslation } from 'react-i18next';
-import { useSelector, useDispatch } from 'react-redux';
+import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { setShowNeighboringTransmitters, setShowBookmarkSource } from './waterfall-slice';
 
 const WaterfallToolbar = ({
@@ -71,7 +71,12 @@ const WaterfallToolbar = ({
         'gr-satellites': true,
     };
     const autoScalePreset = useSelector((state) => state.waterfall.autoScalePreset);
-    const vfoMarkers = useSelector((state) => state.vfo.vfoMarkers);
+    const vfoLockedState = useSelector((state) => ({
+        vfo1: state.vfo.vfoMarkers?.[1]?.lockedTransmitterId,
+        vfo2: state.vfo.vfoMarkers?.[2]?.lockedTransmitterId,
+        vfo3: state.vfo.vfoMarkers?.[3]?.lockedTransmitterId,
+        vfo4: state.vfo.vfoMarkers?.[4]?.lockedTransmitterId,
+    }), shallowEqual);
 
     const handleMenuClick = (event) => {
         setMenuAnchorEl(event.currentTarget);
@@ -340,7 +345,7 @@ const WaterfallToolbar = ({
                     >
                         <VFO1Icon/>
                     </IconButton>
-                    {vfoMarkers[1]?.lockedTransmitterId && vfoMarkers[1]?.lockedTransmitterId !== 'none' && (
+                    {vfoLockedState.vfo1 && vfoLockedState.vfo1 !== 'none' && (
                         <LockIcon
                             sx={{
                                 position: 'absolute',
@@ -374,7 +379,7 @@ const WaterfallToolbar = ({
                     >
                         <VFO2Icon/>
                     </IconButton>
-                    {vfoMarkers[2]?.lockedTransmitterId && vfoMarkers[2]?.lockedTransmitterId !== 'none' && (
+                    {vfoLockedState.vfo2 && vfoLockedState.vfo2 !== 'none' && (
                         <LockIcon
                             sx={{
                                 position: 'absolute',
@@ -408,7 +413,7 @@ const WaterfallToolbar = ({
                     >
                         <VFO3Icon/>
                     </IconButton>
-                    {vfoMarkers[3]?.lockedTransmitterId && vfoMarkers[3]?.lockedTransmitterId !== 'none' && (
+                    {vfoLockedState.vfo3 && vfoLockedState.vfo3 !== 'none' && (
                         <LockIcon
                             sx={{
                                 position: 'absolute',
@@ -442,7 +447,7 @@ const WaterfallToolbar = ({
                     >
                         <VFO4Icon/>
                     </IconButton>
-                    {vfoMarkers[4]?.lockedTransmitterId && vfoMarkers[4]?.lockedTransmitterId !== 'none' && (
+                    {vfoLockedState.vfo4 && vfoLockedState.vfo4 !== 'none' && (
                         <LockIcon
                             sx={{
                                 position: 'absolute',
@@ -623,4 +628,4 @@ const WaterfallToolbar = ({
     );
 };
 
-export default WaterfallToolbar;
+export default React.memo(WaterfallToolbar);

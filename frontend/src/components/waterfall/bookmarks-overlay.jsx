@@ -20,7 +20,7 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import {humanizeFrequency, preciseHumanizeFrequency} from "../common/common.jsx";
-import {useDispatch, useSelector} from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
     setBookMarks
 } from "./waterfall-slice.jsx";
@@ -40,22 +40,28 @@ const BookmarkCanvas = ({
     const bookmarkContainerRef = useRef(null);
     const [actualWidth, setActualWidth] = useState(2048);
     const lastMeasuredWidthRef = useRef(0);
-    const rigDataRef = useRef({});
-
-    // Update the ref when rigData changes (but don't react to these changes)
-    const rigData = useSelector(state => state.targetSatTrack.rigData);
 
     const {
         bookmarks,
         neighboringTransmitters,
         showNeighboringTransmitters,
         showBookmarkSources,
-    } = useSelector((state) => state.waterfall);
+    } = useSelector((state) => ({
+        bookmarks: state.waterfall.bookmarks,
+        neighboringTransmitters: state.waterfall.neighboringTransmitters,
+        showNeighboringTransmitters: state.waterfall.showNeighboringTransmitters,
+        showBookmarkSources: state.waterfall.showBookmarkSources,
+    }), shallowEqual);
 
     const {
+        rigData,
         availableTransmitters,
         satelliteData,
-    } = useSelector((state) => state.targetSatTrack);
+    } = useSelector((state) => ({
+        rigData: state.targetSatTrack.rigData,
+        availableTransmitters: state.targetSatTrack.availableTransmitters,
+        satelliteData: state.targetSatTrack.satelliteData,
+    }), shallowEqual);
 
     // Calculate frequency range
     const startFreq = centerFrequency - sampleRate / 2;
@@ -84,7 +90,7 @@ const BookmarkCanvas = ({
         };
     };
 
-    // Poll for container width changes
+    // Poll for container width changes.
     useEffect(() => {
         const interval = setInterval(() => {
             updateActualWidth();
