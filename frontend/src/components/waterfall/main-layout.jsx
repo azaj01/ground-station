@@ -19,7 +19,7 @@
 
 
 import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react';
-import {Responsive, WidthProvider} from 'react-grid-layout/legacy';
+import {Responsive, useContainerWidth} from 'react-grid-layout';
 import 'leaflet-fullscreen/dist/Leaflet.fullscreen.js';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -88,7 +88,7 @@ const MainLayout = React.memo(function MainLayout() {
         gridEditable,
     } = useSelector(state => state.waterfall);
 
-    const ResponsiveReactGridLayout = useMemo(() => WidthProvider(Responsive), []);
+    const {width, containerRef, mounted} = useContainerWidth({measureBeforeMount: true});
 
     // Default layout if none in localStorage
     const defaultLayouts = {
@@ -173,26 +173,27 @@ const MainLayout = React.memo(function MainLayout() {
         </StyledIslandParentScrollbar>,
     ], []);
 
-    const responsiveGridLayoutParent = (
-        <ResponsiveReactGridLayout
-            useCSSTransforms={true}
+    const responsiveGridLayoutParent = mounted ? (
+        <Responsive
+            width={width}
             className="layout"
             layouts={layouts}
             onLayoutChange={handleLayoutsChange}
             breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}
             cols={{lg: 12, md: 10, sm: 6, xs: 2, xxs: 2}}
             rowHeight={30}
-            isResizable={gridEditable}
-            isDraggable={gridEditable}
-            draggableHandle=".react-grid-draggable"
+            dragConfig={{enabled: gridEditable, handle: '.react-grid-draggable'}}
+            resizeConfig={{enabled: gridEditable}}
         >
             {gridContents}
-        </ResponsiveReactGridLayout>
-    );
+        </Responsive>
+    ) : null;
 
     return (
         <>
-            {responsiveGridLayoutParent}
+            <div ref={containerRef}>
+                {responsiveGridLayoutParent}
+            </div>
 
             {/* Transcription Subtitles Overlay - positioned over entire page */}
             <TranscriptionSubtitles

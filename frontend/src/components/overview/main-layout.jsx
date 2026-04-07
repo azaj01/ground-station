@@ -18,11 +18,12 @@
  */
 
 
-import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react';
-import {Responsive, WidthProvider} from 'react-grid-layout/legacy';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
+import {Responsive, useContainerWidth} from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import 'leaflet/dist/leaflet.css';
+import {absoluteStrategy} from 'react-grid-layout/core';
 import {duration, styled} from "@mui/material/styles";
 import OverviewSatelliteGroupSelector from "./satellite-selector.jsx";
 import {
@@ -159,7 +160,7 @@ const GlobalSatelliteTrackLayout = React.memo(function GlobalSatelliteTrackLayou
         selectedTransmitter
     } = useSelector(state => state.targetSatTrack);
 
-    const ResponsiveReactGridLayout = useMemo(() => WidthProvider(Responsive), []);
+    const {width, containerRef, mounted} = useContainerWidth({measureBeforeMount: true});
 
     // Default layout if none in localStorage
     const defaultLayouts = {
@@ -417,50 +418,30 @@ const GlobalSatelliteTrackLayout = React.memo(function GlobalSatelliteTrackLayou
         </StyledIslandParentNoScrollbar>,
     ];
 
-    let ResponsiveGridLayoutParent = null;
-
-    if (gridEditable === true) {
-        ResponsiveGridLayoutParent =
-            <ResponsiveReactGridLayout
-                useCSSTransforms={false}
-                measureBeforeMount={true}
-                className="layout"
-                layouts={layouts}
-                onLayoutChange={handleLayoutsChange}
-                onWidthChange={handleLayoutWidthChange}
-                breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}
-                cols={{lg: 12, md: 10, sm: 6, xs: 2, xxs: 2}}
-                rowHeight={30}
-                isResizable={true}
-                isDraggable={true}
-                draggableHandle=".react-grid-draggable"
-            >
-                {gridContents}
-            </ResponsiveReactGridLayout>;
-    } else {
-        ResponsiveGridLayoutParent =
-            <ResponsiveReactGridLayout
-                useCSSTransforms={false}
-                measureBeforeMount={true}
-                className="layout"
-                layouts={layouts}
-                onLayoutChange={handleLayoutsChange}
-                onWidthChange={handleLayoutWidthChange}
-                breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}
-                cols={{lg: 12, md: 10, sm: 6, xs: 2, xxs: 2}}
-                rowHeight={30}
-                isResizable={false}
-                isDraggable={false}
-                draggableHandle=".react-grid-draggable"
-            >
-                {gridContents}
-            </ResponsiveReactGridLayout>;
-    }
+    const ResponsiveGridLayoutParent = mounted ? (
+        <Responsive
+            width={width}
+            positionStrategy={absoluteStrategy}
+            className="layout"
+            layouts={layouts}
+            onLayoutChange={handleLayoutsChange}
+            onWidthChange={handleLayoutWidthChange}
+            breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}
+            cols={{lg: 12, md: 10, sm: 6, xs: 2, xxs: 2}}
+            rowHeight={30}
+            dragConfig={{enabled: gridEditable, handle: '.react-grid-draggable'}}
+            resizeConfig={{enabled: gridEditable}}
+        >
+            {gridContents}
+        </Responsive>
+    ) : null;
 
     return (
         <>
             <SatelliteGroupSelectorBar/>
-            {ResponsiveGridLayoutParent}
+            <div ref={containerRef}>
+                {ResponsiveGridLayoutParent}
+            </div>
         </>
     );
 });

@@ -18,8 +18,8 @@
  */
 
 
-import React, {useState, useEffect, useCallback, useMemo, memo, useRef} from 'react';
-import {Responsive, WidthProvider} from 'react-grid-layout/legacy';
+import React, {useState, useEffect, useCallback, useRef} from 'react';
+import {Responsive, useContainerWidth} from 'react-grid-layout';
 import L from 'leaflet';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -233,7 +233,7 @@ const TargetSatelliteLayout = React.memo(function TargetSatelliteLayout() {
     const [currentSatellitesCoverage, setCurrentSatellitesCoverage] = useState([]);
     const coverageRef = useRef(null);
 
-    const ResponsiveReactGridLayout = useMemo(() => WidthProvider(Responsive), []);
+    const {width, containerRef, mounted} = useContainerWidth({measureBeforeMount: true});
 
     // Handler for refreshing timeline passes
     const handleRefreshTimelinePasses = () => {
@@ -485,44 +485,28 @@ const TargetSatelliteLayout = React.memo(function TargetSatelliteLayout() {
         // </StyledIslandParentScrollbar>,
     ];
 
-    let ResponsiveGridLayoutParent = null;
-
-    if (gridEditable === true) {
-        ResponsiveGridLayoutParent = <ResponsiveReactGridLayout
-            useCSSTransforms={true}
+    const ResponsiveGridLayoutParent = mounted ? (
+        <Responsive
+            width={width}
             className="layout"
             layouts={layouts}
             onLayoutChange={handleLayoutsChange}
             breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}
             cols={{lg: 12, md: 10, sm: 6, xs: 2, xxs: 2}}
             rowHeight={30}
-            isResizable={true}
-            isDraggable={true}
-            draggableHandle={".react-grid-draggable"}
+            dragConfig={{enabled: gridEditable, handle: '.react-grid-draggable'}}
+            resizeConfig={{enabled: gridEditable}}
         >
             {gridContents}
-        </ResponsiveReactGridLayout>;
-    } else {
-        ResponsiveGridLayoutParent = <ResponsiveReactGridLayout
-            useCSSTransforms={true}
-            className="layout"
-            layouts={layouts}
-            onLayoutChange={handleLayoutsChange}
-            breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}
-            cols={{lg: 12, md: 10, sm: 6, xs: 2, xxs: 2}}
-            rowHeight={30}
-            isResizable={false}
-            isDraggable={false}
-            draggableHandle={".react-grid-draggable"}
-        >
-            {gridContents}
-        </ResponsiveReactGridLayout>;
-    }
+        </Responsive>
+    ) : null;
 
     return (
         <>
             <TargetSatelliteSelectorBar />
-            {ResponsiveGridLayoutParent}
+            <div ref={containerRef}>
+                {ResponsiveGridLayoutParent}
+            </div>
         </>
     );
 });
