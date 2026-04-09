@@ -139,10 +139,30 @@ const BookmarkCanvas = ({
             return Boolean(showBookmarkSources[normalized]);
         };
 
+        const isRenderableTransmitter = (transmitterLike) => {
+            if (!transmitterLike) {
+                return false;
+            }
+
+            if (typeof transmitterLike.alive === 'boolean' && transmitterLike.alive === false) {
+                return false;
+            }
+
+            const status = String(transmitterLike.status ?? '').toLowerCase();
+            if (status && status !== 'active' && status !== 'alive') {
+                return false;
+            }
+
+            return true;
+        };
+
         // 1. Create static transmitter bookmarks from availableTransmitters
         const transmitterBookmarks = [];
         availableTransmitters.forEach(transmitter => {
             if (!isSourceEnabled(transmitter.source)) {
+                return;
+            }
+            if (!isRenderableTransmitter(transmitter)) {
                 return;
             }
             const isActive = transmitter['status'] === 'active';
@@ -163,7 +183,11 @@ const BookmarkCanvas = ({
         // 2. Create doppler-shifted bookmarks from rigData (tracked satellite)
         const transmittersWithDoppler = rigData['transmitters'] || [];
         const dopplerBookmarks = transmittersWithDoppler
-            .filter(transmitter => transmitter.downlink_observed_freq > 0 && isSourceEnabled(transmitter.source))
+            .filter(transmitter =>
+                transmitter.downlink_observed_freq > 0 &&
+                isSourceEnabled(transmitter.source) &&
+                isRenderableTransmitter(transmitter)
+            )
             .map(transmitter => ({
                 frequency: transmitter.downlink_observed_freq,
                 label: `${transmitter.description || 'Unknown'}`,
@@ -179,7 +203,7 @@ const BookmarkCanvas = ({
         // 3. Create neighboring transmitter bookmarks (from groupOfSats) - only if enabled
         const neighborBookmarks = showNeighboringTransmitters
             ? neighboringTransmitters
-                .filter(tx => isSourceEnabled(tx.source))
+                .filter(tx => isSourceEnabled(tx.source) && isRenderableTransmitter(tx))
                 .map(tx => {
                 // Check if this is a grouped transmitter
                 const label = tx.is_group
