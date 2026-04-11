@@ -377,7 +377,16 @@ const MonitoredSatellitesTable = () => {
                     }}
                     sx={{
                         border: 0,
-                        '--DataGrid-overlayHeight': '100%',
+                        '& .MuiDataGrid-main, & .MuiDataGrid-virtualScroller, & .MuiDataGrid-overlayWrapper, & .MuiDataGrid-overlayWrapperInner': {
+                            backgroundColor: 'background.paper',
+                            backgroundImage: (theme) => `linear-gradient(${alpha(
+                                theme.palette.primary.main,
+                                theme.palette.mode === 'dark' ? 0.18 : 0.10
+                            )}, ${alpha(
+                                theme.palette.primary.main,
+                                theme.palette.mode === 'dark' ? 0.18 : 0.10
+                            )})`,
+                        },
                         [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
                             outline: 'none',
                         },
@@ -414,9 +423,6 @@ const MonitoredSatellitesTable = () => {
                             fontSize: '0.8125rem',
                             fontWeight: 700,
                             letterSpacing: '0.02em',
-                        },
-                        '& .MuiDataGrid-main, & .MuiDataGrid-virtualScroller, & .MuiDataGrid-virtualScrollerContent, & .MuiDataGrid-overlayWrapper, & .MuiDataGrid-overlayWrapperInner, & .MuiDataGrid-overlay': {
-                            backgroundColor: 'background.paper',
                         },
                         '& .MuiDataGrid-overlay': {
                             fontSize: '0.875rem',

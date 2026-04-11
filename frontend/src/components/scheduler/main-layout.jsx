@@ -51,8 +51,8 @@ export default function ScheduledObservationsLayout() {
                     gap: 2,
                     minHeight: 0,
                     gridTemplateRows: {
-                        xs: 'minmax(520px, 1fr) minmax(520px, 1fr)',
-                        lg: 'minmax(520px, 1fr) minmax(520px, 1fr)',
+                        xs: 'minmax(520px, 45dvh) minmax(520px, 1fr)',
+                        lg: 'minmax(520px, 46vh) minmax(520px, 1fr)',
                     },
                     flex: 1,
                 }}
